@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.cse118fp'
+    namespace 'com.example.cse118_finalproject'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.cse118fp"
+        applicationId "com.example.cse118_finalproject"
         minSdk 30
         targetSdk 33
         versionCode 1
