@@ -6,17 +6,31 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.hardware.Sensor; //step 4 : import library
+import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager; //step 4 : import library
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.widget.TextView;
+
 import com.example.cse118_finalproject.databinding.ActivityMainBinding;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.PublishSubject;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+
 /*https://developer.samsung.com/sdp/blog/en/2022/05/25/check-which-sensor-you-can-use-in-galaxy-watch-running-wear-os-powered-by-samsung
 *   - Display accessible sensors (heart rate sensor)
  */
@@ -31,6 +45,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     private Sensor mHeartRate;
 
     private float bpm;
+    private static final String inputUrl = "[Developer TODO: Insert Ngrok Link]";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +60,9 @@ public class MainActivity extends Activity implements SensorEventListener{
         mHeartRate = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         checkPermission();
         checkSensorAvailability();
+
+
+
     }
 
     private void checkPermission() { // step 3 started (according to content detail)
@@ -93,9 +111,62 @@ public class MainActivity extends Activity implements SensorEventListener{
     @Override
     public void onSensorChanged(SensorEvent event) {
         if(TRUE){//event.accuracy >= mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+            Log.d(TAG, "onSensorChanged");
             //bpm = event.TYPE_HEART_RATE;
             bpm = event.values[0];
             tv_heartRate.setText(String.format("Heart Rate: %.0f BPM", bpm));
+
+            // calling a method to post the data and passing our name and job.
+
+            // Execute
+            PublishSubject<SensorEvent> sensorEventSubject = PublishSubject.create();
+            sensorEventSubject.onNext(event);
+
+            postRxJava(inputUrl, String.valueOf(bpm))
+                    .subscribe(
+                            result -> {
+                                // Handle the result on the main thread
+                                //Log.d(TAG,"Result: " + result);
+                            },
+                            error -> {
+                                // Handle errors on the main thread
+                                error.printStackTrace();
+                            }
+                    );
+//            Single<Object> prj = postRxJava("http://127.0.0.1:8080", String.valueOf(bpm));
+//            Log.d(TAG, String.valueOf(prj));
+
+        }
+    }
+    public Single<Object> postRxJava(String url, String jsonBody) {
+
+        return Single.create(emitter -> {
+            try {
+                String result = post(url, jsonBody);
+                emitter.onSuccess(result);
+                Log.d(TAG, "postedRX");
+            } catch (Exception e) {
+                emitter.onError(e);
+                Log.d(TAG, "postedRX fail");
+            }
+        }).subscribeOn(Schedulers.io());
+    }
+    private String post(String url, String json) throws IOException {
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        MediaType JSON = MediaType.parse("application/json");
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody body = RequestBody.create(json, JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            Log.d(TAG, "posted: ");// + response.body().string());
+            return response.body().string();
         }
     }
 
