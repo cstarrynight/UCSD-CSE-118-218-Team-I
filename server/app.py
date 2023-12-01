@@ -4,15 +4,19 @@ import requests
 
 app = Flask(__name__)
 
+# Smart device forwarding URL
+ESP32_URL = 'http://192.168.0.71/lights'
+
 # Current biometric levels
 HEART_RATE = 0
 STRESS = 0 
 
-def nano_leaf(mood):
-    esp32_url = ''
+def nano_leaf(color, brightness):
+    global ESP32_URL, HEART_RATE
+    url = f'{ESP32_URL}?color={color}&brightness={brightness}&bpm={HEART_RATE}'
 
     # Send post request to smart device
-    requests.post(esp32_url, json={'mood': mood})
+    requests.get(url)
 
 def classify_mood():
     # Thresholding or some ML model to classify mood based on heart rate and stress
@@ -41,3 +45,6 @@ def main():
     
 if __name__ == '__main__':
     main()
+
+    # ngrok config edit
+    # ngrok start --all
