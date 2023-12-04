@@ -5,18 +5,26 @@ import requests
 app = Flask(__name__)
 
 # Smart device forwarding URL
-ESP32_URL = 'http://192.168.0.71/lights'
+ESP32_URL = 'http://192.168.1.91/color'
 
 # Current biometric levels
 HEART_RATE = 0
 STRESS = 0 
 
-def nano_leaf(color, brightness):
-    global ESP32_URL, HEART_RATE
-    url = f'{ESP32_URL}?color={color}&brightness={brightness}&bpm={HEART_RATE}'
+@app.route('/color')
+def nano_leaf():
+    global ESP32_URL
+    red = request.args.get('red')
+    green = request.args.get('green')
+    blue = request.args.get('blue')
+
+    url = f'{ESP32_URL}?red={red}&green={green}&blue={blue}'
 
     # Send post request to smart device
-    requests.get(url)
+    response = requests.get(url)
+    print(response)
+
+    return jsonify({'status': 'ok'}), 200
 
 def classify_mood():
     # Thresholding or some ML model to classify mood based on heart rate and stress

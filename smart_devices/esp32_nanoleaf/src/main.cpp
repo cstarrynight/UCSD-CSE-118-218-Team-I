@@ -1,42 +1,42 @@
+#include <Arduino.h>
+#include <esp_task_wdt.h>
+
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
-#include <FastLED.h>
+
 #include "secrets.h"
 
-#define NUM_LEDS 60
-#define DATA_PIN 6
+#define RED_PIN 23
+#define GREEN_PIN 22
+#define BLUE_PIN 21
 
-CRGB leds[NUM_LEDS];
-CRGB newColor;
+#define WATCHDOG_TIMEOUT_S 30
+
+bool idle = true;
+int red = 0, green = 0, blue = 0;
+int counter = 1;
  
 AsyncWebServer server(80);
 
-void string2CRGB(String colorString) {
-  String colors[3];
-  uint8_t p = 0;
-
-  for (uint8_t i = 0; i < colorString.length(); i++) {
-    if (colorString[i] == ',') {
-      p++;
-    } 
-    else {
-      colors[p] = colors[p] + colorString[i];
-    }
-  }
-
-  newColor = CRGB(colors[0].toInt(), colors[1].toInt(), colors[2].toInt());
+void setColor(int redValue, int greenValue, int blueValue) {
+  analogWrite(RED_PIN, redValue);
+  analogWrite(GREEN_PIN, greenValue);
+  analogWrite(BLUE_PIN, blueValue);
 }
  
 void setup(){
   Serial.begin(115200);
+  esp_task_wdt_init(WATCHDOG_TIMEOUT_S, false);
 
-  // FastLED configure
-  FastLED.addLeds<WS2811, DATA_PIN>(leds, NUM_LEDS);
+  // Led strips setup
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode(BLUE_PIN, OUTPUT);
  
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
-  Serial.println(homeSSID);
-  WiFi.begin(homeSSID, homePassword);
+  Serial.println(mesaSSID);
+  WiFi.begin(mesaSSID, mesaPassword);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -45,22 +45,40 @@ void setup(){
   Serial.println(WiFi.localIP());
  
   // Webserver routes
-  server.on("/lights", HTTP_GET, [](AsyncWebServerRequest *request) {
-    String color = request->getParam("color")->value();
-    String brightness = request->getParam("brightness")->value();
-    String bpm = request->getParam("bpm")->value();
+  server.on("/color", HTTP_GET, [](AsyncWebServerRequest *request) {
+    int requestedRed = request->getParam("red")->value().toInt();
+    int requestedGreen = request->getParam("green")->value().toInt();
+    int requestedBlue = request->getParam("blue")->value().toInt();
 
-    Serial.println(color);
-    Serial.println(brightness);
-    Serial.println(bpm);
+    if ((requestedRed >= 0 && requestedRed <= 255) &&
+        (requestedGreen >= 0 && requestedGreen <= 255) &&
+        (requestedBlue >= 0 && requestedBlue <= 255)) {
+          red = requestedRed;
+          green = requestedGreen;
+          blue = requestedBlue;
+
+          idle = false;
+        }
+    
+    Serial.println("RGB=(" + String(red) + ", " + String(green) + ", "  + String(blue) + ")");
     Serial.println();
+ 
+    request->send(200);
+  });
 
-    // Color
-    string2CRGB(color);
+  // Webserver routes
+  server.on("/idle", HTTP_GET, [](AsyncWebServerRequest *request) {
+    red = green = blue = 0;
+    idle = true;
+    counter = 1;
+ 
+    request->send(200);
+  });
 
-    // Brightness
-    int mappedBrightness = map(brightness.toInt(), 0, 100, 30, 255);
-    FastLED.setBrightness(mappedBrightness);
+  // Webserver routes
+  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request) {
+    red = green = blue = 0;
+    idle = false;
  
     request->send(200);
   });
@@ -69,6 +87,24 @@ void setup(){
 }
  
 void loop() {
-  fill_solid(leds, NUM_LEDS, newColor);
-  FastLED.show();
+  if (idle) {
+    // Do fade protocol
+    if (red < 5 || green < 5 || blue < 5) {
+      red = green = blue = 5;
+      counter = 1;
+    }
+    else if (red > 150 || green > 150 || blue > 150) {
+      red = green = blue = 150;
+      counter = -1;
+    }
+
+    red = red + counter;
+    green = green + counter;
+    blue = blue + counter;
+
+    delay(10);
+  }
+
+  setColor(red, green, blue);
+
 }
