@@ -34,14 +34,6 @@
 <!------------------------------------------ About The Project ---------------------------------------------------------->
 ## About The Project
 
-Every student applying for a college education surely wants to know what are the chances of getting into their dream school. 
-Our project is designed to visualize and predict the probability of admission of certain students and the universities to 
-which they apply, which is beneficial for the students in need.
-
-The results of this project are expected to help worldwide students who are applying for master’s programs. With our prediction 
-as guidelines, they could apply a better application strategy if they already know for which kind of universities they are more 
-attractive, so that they have a much bigger chance of admission.
-
 <!------------------------------------------ Getting Started ---------------------------------------------------------->
 ## Getting Started
 
