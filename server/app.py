@@ -8,11 +8,12 @@ app = Flask(__name__)
 # Smart device forwarding URL
 ESP32_URL = ''
 
+# User Mode 0: Non-Athlete, User Mode 1: Elite Athlete 
+USER_MODE = 0 
+
+bpm_buffer = []
+
 def nano_leaf(red, green, blue):
-    # Current biometric levels
-    HEART_RATE = 0
-    STRESS = 0 
-    USER_MODE = 0 # 0 indicates regular, 1 indicates athlete
 
     global ESP32_URL
 
@@ -25,6 +26,7 @@ def nano_leaf(red, green, blue):
 
 def classify_mood(bpm_values):
     # Thresholding or some ML model to classify mood based on heart rate and stress
+    global USER_MODE
 
     hrv = get_hrv(bpm_values)
     avg_hr = np.mean(bpm_values)
@@ -33,12 +35,12 @@ def classify_mood(bpm_values):
     if USER_MODE == 0: 
         if avg_hr < 60:
             # TODO: low HR
-            nano_leaf(0, 255, 0)
-            pass
+            nano_leaf(255, 0, 0)
         elif avg_hr > 100:
             # TODO: high HR
-            nano_leaf(255, 0, 0)
-            pass  
+            nano_leaf(0, 0, 255)
+        else:
+            nano_leaf(0, 255, 0)
 
         if hrv < 20:
             # TODO: low HRV, high stress
@@ -93,14 +95,17 @@ def get_hrv(bpm_values):
 @app.route('/', methods=['POST', 'GET'])
 def form():
     if request.method == 'POST':
-        global HEART_RATE, STRESS
-
         data = json.loads(request.data)
         heart_rate = float(data['bpm'])
-        #stress = float(data['stress'])
 
-        # Trigger nano leaf
-        classify_mood(heart_rate)
+        bpm_buffer.append(heart_rate)
+
+        if len(bpm_buffer) == 5:
+            bpm_values = bpm_buffer
+            bpm_buffer.clear()
+            
+            # Trigger nano leaf
+            classify_mood(bpm_values)
 
         return jsonify({'status': 'ok'}), 200
 
