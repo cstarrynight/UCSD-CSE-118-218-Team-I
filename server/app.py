@@ -12,6 +12,7 @@ ESP32_URL = ''
 USER_MODE = 0 
 
 bpm_buffer = []
+counter = 0
 
 def nano_leaf(red, green, blue):
 
@@ -114,17 +115,19 @@ def form():
         #user_mode = int()
 
         bpm_buffer.append(heart_rate)
+        counter += 1
 
-        if len(bpm_buffer) == 5:
-            bpm_values = bpm_buffer.copy()
-            bpm_buffer = []
-
+        if counter == 5:
             print("buffer is full, classify mood")
             
             # Trigger nano leaf
-            classify_mood(bpm_values)
+            classify_mood(bpm_buffer)
 
-        print("classify mood completed")
+            bpm_buffer.clear()
+            counter = 0
+            print("classify mood completed")
+
+        print("bpm received")
 
         return jsonify({'status': 'ok'}), 200
 
