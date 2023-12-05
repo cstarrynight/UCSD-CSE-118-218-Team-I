@@ -11,8 +11,8 @@ ESP32_URL = ''
 # User Mode 0: Non-Athlete, User Mode 1: Elite Athlete 
 USER_MODE = 0 
 
-bpm_buffer = []
-counter = 0
+BPM_BUFFER = []
+COUNTER = 0
 
 def nano_leaf(red, green, blue):
 
@@ -109,22 +109,25 @@ def get_hrv(bpm_values):
 
 @app.route('/', methods=['POST', 'GET'])
 def form():
+    global BPM_BUFFER
+    global COUNTER
+
     if request.method == 'POST':
         data = json.loads(request.data)
         heart_rate = float(data['bpm'])
         #user_mode = int()
 
-        bpm_buffer.append(heart_rate)
-        counter += 1
+        BPM_BUFFER.append(heart_rate)
+        COUNTER += 1
 
-        if counter == 5:
+        if COUNTER == 5:
             print("buffer is full, classify mood")
             
             # Trigger nano leaf
-            classify_mood(bpm_buffer)
+            classify_mood(BPM_BUFFER)
 
-            bpm_buffer.clear()
-            counter = 0
+            BPM_BUFFER.clear()
+            COUNTER = 0
             print("classify mood completed")
 
         print("bpm received")
