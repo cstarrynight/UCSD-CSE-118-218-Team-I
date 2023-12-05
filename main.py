@@ -3,7 +3,7 @@ from server.app import run
 import ngrok
 
 LOCAL = 8080
-ESP32 = '172.20.10.3'
+ESP32 = '192.168.0.246'
 
 if __name__ == '__main__':
     # Establish connectivity

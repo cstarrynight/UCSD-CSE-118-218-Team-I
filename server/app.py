@@ -114,7 +114,7 @@ def form():
 
     if request.method == 'POST':
         data = json.loads(request.data)
-        heart_rate = float(data['bpm'])
+        heart_rate = float(data['BPM'])
         #user_mode = int()
 
         BPM_BUFFER.append(heart_rate)
