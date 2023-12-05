@@ -5,17 +5,14 @@ import requests
 app = Flask(__name__)
 
 # Smart device forwarding URL
-ESP32_URL = 'http://192.168.1.91'
+ESP32_URL = 'http://172.20.10.3'
 
 # Current biometric levels
 HEART_RATE = 0
 STRESS = 0 
 
-def nano_leaf():
+def nano_leaf(red, green, blue):
     global ESP32_URL
-    red = request.args.get('red')
-    green = request.args.get('green')
-    blue = request.args.get('blue')
 
     url = f'{ESP32_URL}/color?red={red}&green={green}&blue={blue}'
 
@@ -26,7 +23,11 @@ def nano_leaf():
 
 def classify_mood():
     # Thresholding or some ML model to classify mood based on heart rate and stress
-    pass
+    global HEART_RATE
+    if HEART_RATE > 85:
+        nano_leaf(255, 0, 0)
+    else:
+        nano_leaf(0, 255, 0)
 
 @app.route('/', methods=['POST', 'GET'])
 def form():
@@ -34,13 +35,11 @@ def form():
         global HEART_RATE, STRESS
 
         data = json.loads(request.data)
-
-        # https://developer.samsung.com/sdp/blog/en/2022/05/25/check-which-sensor-you-can-use-in-galaxy-watch-running-wear-os-powered-by-samsung
-        #HEART_RATE = data['bpm']
+        HEART_RATE = float(data['bpm'])
         #STRESS = data['stress']
 
-        # mood = classify_mood()
-        # trigger_alexa(mood)
+        # Trigger nano leaf
+        mood = classify_mood()
 
         return jsonify({'status': 'ok'}), 200
 
@@ -54,3 +53,4 @@ if __name__ == '__main__':
 
     # ngrok config edit
     # ngrok start --all
+    # 172.20.10.3

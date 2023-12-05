@@ -35,9 +35,9 @@ void setup(){
  
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
-  Serial.println(ucsdSSID);
+  Serial.println(phoneSSID);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ucsdSSID, ucsdPassword);
+  WiFi.begin(phoneSSID, phonePassword);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
