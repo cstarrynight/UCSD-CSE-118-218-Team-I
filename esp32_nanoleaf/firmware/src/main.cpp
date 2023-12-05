@@ -14,6 +14,7 @@
 
 bool idle = true;
 int red = 0, green = 0, blue = 0;
+int lastRed = 0, lastGreen = 0, lastBlue = 0;
 int counter = 1;
  
 AsyncWebServer server(80);
@@ -22,6 +23,22 @@ void setColor(int redValue, int greenValue, int blueValue) {
   analogWrite(RED_PIN, redValue);
   analogWrite(GREEN_PIN, greenValue);
   analogWrite(BLUE_PIN, blueValue);
+}
+
+void fadeColor() {
+  float redFadeSpeed = abs(red - lastRed) / 255;
+  float greenFadeSpeed = abs(green - lastGreen) / 255;
+  float blueFadeSpeed = abs(blue - lastBlue) / 255;
+
+  // Fade last color to current color until error difference is miniscule
+  while (abs(red - lastRed) > 1 && abs(green - lastGreen) > 1 && abs(blue - lastBlue) > 1) {
+    lastRed += (lastRed < red) ? redFadeSpeed : -redFadeSpeed;
+    lastGreen += (lastGreen < green) ? greenFadeSpeed : -greenFadeSpeed;
+    lastBlue += (lastBlue < blue) ? blueFadeSpeed : -blueFadeSpeed;
+
+    setColor(int(lastRed), int(lastGreen), int(lastBlue));
+    delay(10);
+  }
 }
  
 void setup(){
@@ -54,11 +71,21 @@ void setup(){
     if ((requestedRed >= 0 && requestedRed <= 255) &&
         (requestedGreen >= 0 && requestedGreen <= 255) &&
         (requestedBlue >= 0 && requestedBlue <= 255)) {
+
+          // Save last colors
+          lastRed = red;
+          lastGreen = green;
+          lastBlue = blue;
+
+          // Set current colors
           red = requestedRed;
           green = requestedGreen;
           blue = requestedBlue;
 
           idle = false;
+
+          // Change color
+          fadeColor();
         }
     
     Serial.println("RGB=(" + String(red) + ", " + String(green) + ", "  + String(blue) + ")");
@@ -80,6 +107,7 @@ void setup(){
   server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request) {
     red = green = blue = 0;
     idle = false;
+    setColor(0, 0, 0);
  
     request->send(200);
   });
@@ -89,7 +117,7 @@ void setup(){
  
 void loop() {
   if (idle) {
-    // Do fade protocol
+    // Do idle fade protocol
     if (red < 5 || green < 5 || blue < 5) {
       red = green = blue = 5;
       counter = 1;
@@ -104,8 +132,6 @@ void loop() {
     blue = blue + counter;
 
     delay(10);
+    setColor(red, green, blue);
   }
-
-  setColor(red, green, blue);
-
 }
