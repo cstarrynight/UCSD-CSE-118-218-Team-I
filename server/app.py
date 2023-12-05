@@ -6,25 +6,20 @@ import numpy as np
 app = Flask(__name__)
 
 # Smart device forwarding URL
-ESP32_URL = 'http://192.168.1.91/color'
+ESP32_URL = ''
 
-# Current biometric levels
-HEART_RATE = 0
-STRESS = 0 
-USER_MODE = 0 # 0 indicates regular, 1 indicates athlete
+def nano_leaf(red, green, blue):
+    # Current biometric levels
+    HEART_RATE = 0
+    STRESS = 0 
+    USER_MODE = 0 # 0 indicates regular, 1 indicates athlete
 
-@app.route('/color')
-def nano_leaf():
     global ESP32_URL
-    red = request.args.get('red')
-    green = request.args.get('green')
-    blue = request.args.get('blue')
 
-    url = f'{ESP32_URL}?red={red}&green={green}&blue={blue}'
+    url = f'{ESP32_URL}/color?red={red}&green={green}&blue={blue}'
 
     # Send post request to smart device
-    response = requests.get(url)
-    print(response)
+    requests.get(url)
 
     return jsonify({'status': 'ok'}), 200
 
@@ -38,9 +33,11 @@ def classify_mood(bpm_values):
     if USER_MODE == 0: 
         if avg_hr < 60:
             # TODO: low HR
+            nano_leaf(0, 255, 0)
             pass
         elif avg_hr > 100:
-            # TODO: high HR 
+            # TODO: high HR
+            nano_leaf(255, 0, 0)
             pass  
 
         if hrv < 20:
@@ -99,23 +96,21 @@ def form():
         global HEART_RATE, STRESS
 
         data = json.loads(request.data)
+        heart_rate = float(data['bpm'])
+        #stress = float(data['stress'])
 
-        # https://developer.samsung.com/sdp/blog/en/2022/05/25/check-which-sensor-you-can-use-in-galaxy-watch-running-wear-os-powered-by-samsung
-        #HEART_RATE = data['bpm']
-        #STRESS = data['stress']
-
-        # mood = classify_mood()
-        # trigger_alexa(mood)
+        # Trigger nano leaf
+        classify_mood(heart_rate)
 
         return jsonify({'status': 'ok'}), 200
 
     return jsonify({'status': 'bad input'}), 400
 
-def main():
-    app.run(debug=True, port=8080)
+def run(port, esp32_url):
+    global ESP32_URL
+
+    ESP32_URL = esp32_url
+    app.run(debug=True, port=port)
     
 if __name__ == '__main__':
-    main()
-
-    # ngrok config edit
-    # ngrok start --all
+    run()
