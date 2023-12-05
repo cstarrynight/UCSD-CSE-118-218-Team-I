@@ -61,10 +61,13 @@ def classify_mood(bpm_values):
     else:
         if avg_hr < 40:
             # TODO: dangerously low HR
-            pass
+            nano_leaf(255, 0, 0)
         elif avg_hr > 100:
-            # TODO: high HR 
-            pass  
+            # TODO: high HR
+            nano_leaf(0, 0, 255)  
+        else:
+            nano_leaf(0, 255, 0)
+
 
         if hrv < 20:
             # TODO: low HRV, high stress
@@ -108,12 +111,13 @@ def form():
     if request.method == 'POST':
         data = json.loads(request.data)
         heart_rate = float(data['bpm'])
+        #user_mode = int()
 
         bpm_buffer.append(heart_rate)
 
         if len(bpm_buffer) == 5:
             bpm_values = bpm_buffer.copy()
-            bpm_buffer.clear()
+            bpm_buffer = []
 
             print("buffer is full, classify mood")
             
