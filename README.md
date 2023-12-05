@@ -98,33 +98,12 @@ const char* ucsdPassword = "";
 git clone https://github.com/friidryce/UCSD-CSE-118-218-Team-I
 ```
 
-2. Install the latest version of `Flask` or alternatively if you have `pip`, run
+2. Install the latest version of `Flask` and the `nrgok` Python SDK or alternatively if you have `pip`, run
 ```bash
 pip install -r requirements.txt
 ```
 
-3. We require a public forwarding URL for our server and ESP32 smart appliance. To generate multiple tunnels simultaneously, run `ngrok config edit` to the `ngrok.yml` file.
-
-4. On the `ngrok.yml` file, add the address to our `Flask` server which is `8080` and the ESP32's local IP like below. Close on save.
-```yaml
-authtoken: your_token
-tunnels:
-  any1:
-    addr: 8080
-    proto: http    
-  any2:
-    addr: YOUR_ESP32_LOCAL_IP
-    proto: http
-```
-
-5. To get our forwarding URLs, run `ngrok start --all`. Copy/save these URLs for later. Example, 
-```bash                                                                                                                                      
-Web Interface                 http://127.0.0.1:4040                                                                                                                     
-Forwarding                    https://96f6-2607-f720-f00-4031-c34-7b87-c01c-b3db.ngrok-free.app -> http://192.168.0.71:80                                               
-Forwarding                    https://9d46-2607-f720-f00-4031-c34-7b87-c01c-b3db.ngrok-free.app -> http://localhost:8080                                                
-```
-
-6. In the `app.py` file, change the value of the `ESP32_URL` constant to the forwarding URL for the ESP32.
+3. We require a public forwarding URL for both our server and ESP32 smart appliance. This task will conveniently be automated in our `main.py` script, but we still need to change one thing. In the `main.py` script, modify the `ESP32` constant appropriately to the local IP address of the ESP32 board.
 
 ### Android-Side Installation
 
@@ -136,10 +115,10 @@ Forwarding                    https://9d46-2607-f720-f00-4031-c34-7b87-c01c-b3db
 
 ### How to Run
 
-Run `python app.py` while monitoring your wearable app. 
+Run `python main.py` while monitoring your wearable app. 
 
 > [!Warning]  
-> Ensure that all your devices, Galaxy Watch, Raspberry Pi, and ESP32/Nano Leaf, are on the same WiFi network.
+> Ensure that the Raspberry Pi and ESP32/Nano Leaf are on the same WiFi network before starting a ngrok session.
 
 <!------------------------------------------ Network Architecture  ---------------------------------------------------------->
 ## Network Architecture

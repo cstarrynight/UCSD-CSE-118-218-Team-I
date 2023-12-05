@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 
 # Smart device forwarding URL
-ESP32_URL = 'http://172.20.10.3'
+ESP32_URL = ''
 
 # Current biometric levels
 HEART_RATE = 0
@@ -45,12 +45,10 @@ def form():
 
     return jsonify({'status': 'bad input'}), 400
 
-def main():
-    app.run(debug=True, port=8080)
+def run(port, esp32_url):
+    global ESP32_URL
+    ESP32_URL = esp32_url
+    app.run(debug=True, port=port)
     
 if __name__ == '__main__':
-    main()
-
-    # ngrok config edit
-    # ngrok start --all
-    # 172.20.10.3
+    run()
