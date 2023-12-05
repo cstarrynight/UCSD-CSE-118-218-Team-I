@@ -19,8 +19,12 @@ def nano_leaf(red, green, blue):
 
     url = f'{ESP32_URL}/color?red={red}&green={green}&blue={blue}'
 
+    print("started nano leaf function")
+
     # Send post request to smart device
     requests.get(url)
+
+    print("nano leaf get")
 
     return jsonify({'status': 'ok'}), 200
 
@@ -116,6 +120,7 @@ def form():
             # Trigger nano leaf
             classify_mood(bpm_values)
 
+        print("classify mood completed")
 
         return jsonify({'status': 'ok'}), 200
 
