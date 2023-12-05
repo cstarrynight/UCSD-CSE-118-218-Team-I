@@ -4,7 +4,7 @@
 <p align="center">
     CSE 118 Team I
     <br /> <br />
-    <a href="https://github.com/friidryce"> Chengzhan Gao </a>
+    <a href="https://github.com/friidryce"> Jason Au </a>
     ·
     <a href="https://github.com/cstarrynight"> Christina Mai </a>
     ·
