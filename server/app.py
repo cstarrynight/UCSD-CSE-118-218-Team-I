@@ -5,24 +5,22 @@ import requests
 app = Flask(__name__)
 
 # Smart device forwarding URL
-ESP32_URL = 'http://192.168.1.91/color'
+ESP32_URL = 'http://192.168.1.91'
 
 # Current biometric levels
 HEART_RATE = 0
 STRESS = 0 
 
-@app.route('/color')
 def nano_leaf():
     global ESP32_URL
     red = request.args.get('red')
     green = request.args.get('green')
     blue = request.args.get('blue')
 
-    url = f'{ESP32_URL}?red={red}&green={green}&blue={blue}'
+    url = f'{ESP32_URL}/color?red={red}&green={green}&blue={blue}'
 
     # Send post request to smart device
-    response = requests.get(url)
-    print(response)
+    requests.get(url)
 
     return jsonify({'status': 'ok'}), 200
 
