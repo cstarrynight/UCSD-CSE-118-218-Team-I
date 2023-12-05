@@ -101,7 +101,7 @@ def form():
         bpm_buffer.append(heart_rate)
 
         if len(bpm_buffer) == 5:
-            bpm_values = bpm_buffer
+            bpm_values = bpm_buffer.copy()
             bpm_buffer.clear()
             
             # Trigger nano leaf
