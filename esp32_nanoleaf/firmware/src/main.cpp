@@ -26,18 +26,19 @@ void setColor(int redValue, int greenValue, int blueValue) {
 }
 
 void fadeColor() {
-  float redFadeSpeed = abs(red - lastRed) / 255;
-  float greenFadeSpeed = abs(green - lastGreen) / 255;
-  float blueFadeSpeed = abs(blue - lastBlue) / 255;
+  int redDiff = red - lastRed, greenDiff = green - lastGreen, blueDiff = blue - lastBlue;
+  int redValue, greenValue, blueValue;
 
-  // Fade last color to current color until error difference is miniscule
-  while (abs(red - lastRed) > 1 && abs(green - lastGreen) > 1 && abs(blue - lastBlue) > 1) {
-    lastRed += (lastRed < red) ? redFadeSpeed : -redFadeSpeed;
-    lastGreen += (lastGreen < green) ? greenFadeSpeed : -greenFadeSpeed;
-    lastBlue += (lastBlue < blue) ? blueFadeSpeed : -blueFadeSpeed;
+  int fadeDelay = 20, duration = 3000;
+  int steps = duration / fadeDelay;
 
-    setColor(int(lastRed), int(lastGreen), int(lastBlue));
-    delay(10);
+  for (int i = 0; i < steps; i++) {
+    redValue = lastRed + (redDiff * i / steps);
+    greenValue = lastGreen + (greenDiff * i / steps);
+    blueValue = lastGreen + (blueDiff * i / steps);
+
+    setColor(redValue, greenValue, blueValue);
+    delay(fadeDelay);
   }
 }
  
@@ -51,10 +52,11 @@ void setup(){
   pinMode(BLUE_PIN, OUTPUT);
  
   // Connect to Wi-Fi network with SSID and password
-  Serial.print("Connecting to ");
-  Serial.println(phoneSSID);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(phoneSSID, phonePassword);
+
+  Serial.print("Connecting to ");
+  Serial.println(ucsdSSID);
+  WiFi.begin(ucsdSSID, ucsdPassword);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");

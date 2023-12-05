@@ -117,6 +117,8 @@ pip install -r requirements.txt
 
 Run `python main.py` while monitoring your wearable app. 
 
+If you do not have a Galaxy Watch, you can simulate sending biometric data to the server using the `server/test/spoof_data.py` script.
+
 > [!Warning]  
 > Ensure that the Raspberry Pi and ESP32/Nano Leaf are on the same WiFi network before starting a ngrok session.
 
