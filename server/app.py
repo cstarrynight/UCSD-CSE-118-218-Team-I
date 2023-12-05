@@ -28,8 +28,12 @@ def classify_mood(bpm_values):
     # Thresholding or some ML model to classify mood based on heart rate and stress
     global USER_MODE
 
+    print("started to classify mood")
+
     hrv = get_hrv(bpm_values)
     avg_hr = np.mean(bpm_values)
+
+    print("hrv and avg_hr obtained")
 
     # If user is a regular adult
     if USER_MODE == 0: 
@@ -67,6 +71,9 @@ def classify_mood(bpm_values):
     pass
 
 def get_hrv(bpm_values):
+    
+    print("started to get hrv")
+
     """ Calculate HRV (Heart Rate Variability) using RMSSD method from BPM (Beats Per Minute) values. """
 
     def bpm_to_ibi(bpm):
@@ -103,9 +110,12 @@ def form():
         if len(bpm_buffer) == 5:
             bpm_values = bpm_buffer.copy()
             bpm_buffer.clear()
+
+            print("buffer is full, classify mood")
             
             # Trigger nano leaf
             classify_mood(bpm_values)
+
 
         return jsonify({'status': 'ok'}), 200
 
