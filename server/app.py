@@ -6,7 +6,7 @@ import numpy as np
 app = Flask(__name__)
 
 # Smart device forwarding URL
-ESP32_URL = ''
+ESP32_URL = 'http://192.168.0.246'
 
 # User Mode 0: Non-Athlete, User Mode 1: Elite Athlete 
 USER_MODE = 0 
@@ -109,13 +109,12 @@ def get_hrv(bpm_values):
 
 @app.route('/', methods=['POST', 'GET'])
 def form():
-    global BPM_BUFFER
-    global COUNTER
+    global BPM_BUFFER, COUNTER, USER_MODE
 
     if request.method == 'POST':
         data = json.loads(request.data)
         heart_rate = float(data['BPM'])
-        #user_mode = int()
+        USER_MODE = int(data['isAthlete'])
 
         BPM_BUFFER.append(heart_rate)
         COUNTER += 1
@@ -136,10 +135,7 @@ def form():
 
     return jsonify({'status': 'bad input'}), 400
 
-def run(port, esp32_url):
-    global ESP32_URL
-
-    ESP32_URL = esp32_url
+def run(port):
     app.run(debug=True, port=port)
     
 if __name__ == '__main__':

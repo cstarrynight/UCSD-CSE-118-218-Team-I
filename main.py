@@ -8,12 +8,10 @@ ESP32 = '192.168.0.246'
 if __name__ == '__main__':
     # Establish connectivity
     local_listener = ngrok.forward(addr=LOCAL, authtoken_from_env=True)
-    esp32_listener = ngrok.forward(addr=ESP32, authtoken_from_env=True)
 
     # Output ngrok url to console
     print(f'Local forwarding URL established at {local_listener.url()}')
-    print(f'ESP32 forwarding URL established at {esp32_listener.url()}')
 
-    run(port=LOCAL, esp32_url=esp32_listener.url())
+    run(port=LOCAL)
 
     #ngrok.disconnect()
