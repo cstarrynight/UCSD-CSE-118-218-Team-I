@@ -67,7 +67,7 @@ For our wearable app, development and installation was done on [Android Studio](
 
 An optional portion of this project was designing and fabricating a smart light appliance. We prototyped a nano leaf, and the design files and BOM will be listed [here](smart_devices/README.md). The nano leaf is an IoT device, which requires embedded firmware for the ESP32 housed inside. Therefore, we recommend using [Visual Studio Code](https://code.visualstudio.com/) with the [PlatformIO](https://platformio.org/) extension for development.
 
-Lastly, this project is persistently communicating with different devices, among the watch, server, and smart appliance. Our main method of communication is with REST APIs via HTTP requests. To make our device/server network endpoints yet secure for communication, we require a tool [nrgok](https://ngrok.com/) on the Raspberry Pi. Feel free to use the free trial!
+Lastly, this project is persistently communicating with different devices, among the watch, server, and smart appliance. Our main method of communication is with REST APIs via HTTP requests. To make our device/server network endpoints public yet secure for communication, we require a tool [nrgok](https://ngrok.com/) on the Raspberry Pi. Feel free to use the free trial!
 
 ### Smart Appliance-Installation
 
@@ -80,7 +80,7 @@ git clone https://github.com/friidryce/UCSD-CSE-118-218-Team-I
 
 3. On [Visual Studio Code](https://code.visualstudio.com/), open a [PlatformIO](https://platformio.org/) project using the `esp32_nanoleaf/firmware` folder.
 
-4. In the `esp32_nanoleaf/firmware/include` folder, create a `secrets.h` header file containing your WiFi credentials. Example,
+4. In the `esp32_nanoleaf/firmware/include` folder, create a `secrets.h` header file containing your WiFi credentials. This must be the same network that the Raspberry Pi is on. Example,
 ```c
 // Wifi credentials
 const char* ucsdSSID = "UCSD-Guest";
@@ -98,39 +98,74 @@ const char* ucsdPassword = "";
 git clone https://github.com/friidryce/UCSD-CSE-118-218-Team-I
 ```
 
-2. Install the latest version of `Flask` and the `nrgok` Python SDK or alternatively if you have `pip`, run
+2. Install the latest version of `Flask`, `nrgok` Python SDK, and `numpy` or alternatively if you have `pip`, run
 ```bash
 pip install -r requirements.txt
 ```
 
-3. We require a public forwarding URL for both our server and ESP32 smart appliance. This task will conveniently be automated in our `main.py` script, but we still need to change one thing. In the `main.py` script, modify the `ESP32` constant appropriately to the local IP address of the ESP32 board.
+3. In the `main.py` script, modify the `ESP32` constant appropriately to the local IP address of the ESP32 board.
 
 ### Android-Side Installation
 
-1. 
+1. ...
 
-2. 
+2. ...
 
-3.
+3. Do not build and install the app to the Galaxy Watch just yet.
 
 ### How to Run
 
-Run `python main.py` while monitoring your wearable app. 
+We require a public forwarding URL so that the Galaxy Watch can send data to our Flask endpoints. Generating a public forwarding URL with `ngrok` will conveniently be automated in our `main.py` script.
 
-If you do not have a Galaxy Watch, you can simulate sending biometric data to the server using the `server/test/spoof_data.py` script.
+Run `python main.py` and copy the forwarding URL outputted.
+
+Modify the forwarding URL in `MainActivity.java` and proceed to building and installing the app to the Galaxy Watch.
+
+Monitor the watch and nanoleaf for color changes! If you do not have a Galaxy Watch, you can simulate sending biometric data to the server using the `server/test/spoof_data.py` script.
 
 > [!Warning]  
-> Ensure that the Raspberry Pi and ESP32/Nano Leaf are on the same WiFi network before starting a ngrok session.
+> Ensure that the Raspberry Pi and ESP32/Nano Leaf are on the same WiFi network before starting a ngrok session using `main.py`. If you are using the free trial of `ngrok`, you must modify the forwarding URL whenever you re-run the Flask server 
 
 <!------------------------------------------ Network Architecture  ---------------------------------------------------------->
 ## Network Architecture
 
+![network](server/software_network.png)
 
 <!------------------------------------------ File Architecture  ---------------------------------------------------------->
 ## File Architecture
 ```
 [UCSD-CSE-118-218-Team-I]
+├─ 📂.github/workflows
+├─ 📂CSE118_FinalProject
+  ├─ 📂app
+    ├─ 📂src/main
+      ├─ 📂java/com/example/cse118_finalproject
+        ├─ 📄MainActivity.java
+      ├─ 📂...
+      ├─ 📄...
+    ├─ 📄build.gradle
+    ├─ 📄...
+  ├─ 📂...
+  ├─ 📄...
+├─ 📂esp32_nanoleaf
+  ├─ 📂firmware
+    ├─ 📂include
+      ├─ 📄secrets.h
+    ├─ 📂src
+      ├─ main.cpp
+    ├─ 📂...
+    ├─ 📄platformio.ini
+  ├─ 📂hardware
+    ├─ 📂...
+    ├─ 📄...
+  ├─ 📄README.md
+├─ 📂server
+  ├─ 📂test
+    ├─ 📄...
+  ├─ 📄app.py
 ├─ 📄.gitignore
 ├─ 📄README.md
+├─ 📄main.py
+├─ 📄requirements.txt
 ```
 
