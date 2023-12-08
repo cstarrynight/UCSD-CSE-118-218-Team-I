@@ -9,7 +9,7 @@ NGROK_AUTH = os.environ.get('NGROK_AUTH')
 NGROK_DOMAIN = os.environ.get('NGROK_DOMAIN')
 
 LOCAL = 8080
-ESP32 = '192.168.0.246'
+ESP32 = 'http://192.168.0.246'
 
 if __name__ == '__main__':
     # Establish connectivity
@@ -17,15 +17,16 @@ if __name__ == '__main__':
     listener_url = listener.url()
 
     # Output ngrok url to console
-    print(' __________________________________________________________________________________________')
-    print('|')
-    print(f'|  Local forwarding URL established at {listener_url}')
-    print('|')
-    print(' __________________________________________________________________________________________')
+    print(' ------------------------------------------------------------------------------------')
+    print('|                                                                                    |')
+    print(f'|  Local forwarding URL established at {listener_url}  |')
+    print('|                                                                                    |')
+    print(' ------------------------------------------------------------------------------------')
     print('')
 
     try:
-        run(port=LOCAL)
+        run(port=LOCAL, esp32_url=ESP32)
+
     except KeyboardInterrupt:
         ngrok.disconnect()
 
