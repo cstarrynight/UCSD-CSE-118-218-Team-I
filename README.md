@@ -91,6 +91,16 @@ const char* ucsdPassword = "";
 
 6. Open the Serial Monitor and wait for a successful WiFi connection. Once connected, the Serial Monitor will print the local IP address of the ESP32. Copy/save this for later.
 
+### Ngrok Installation
+
+1. If you have not, create an [nrgok](https://ngrok.com/) account.
+
+2. For convenience, we can obtain a static forwarding URL by creating a domain. Proceed with this step and copy/save the domain URL.
+
+![network](server/img/ngrok_static.png)
+
+3. Copy/save your `authtoken` on the dashboard page as well.
+
 ### Server-Side Installation
 
 1. Clone the repo on the Raspberry Pi
@@ -98,12 +108,18 @@ const char* ucsdPassword = "";
 git clone https://github.com/friidryce/UCSD-CSE-118-218-Team-I
 ```
 
-2. Install the latest version of `Flask`, `nrgok` Python SDK, and `numpy` or alternatively if you have `pip`, run
+2. Install the latest version of `Flask`, `python-dotenv`, `nrgok` Python SDK, and `numpy` or alternatively if you have `pip`, run
 ```bash
 pip install -r requirements.txt
 ```
 
-3. In the `main.py` script, modify the `ESP32` constant appropriately to the local IP address of the ESP32 board.
+3. Create an `.env` file in the root directory of the repository. Add the following environment variables, `NGROK_AUTH` and `NGROK_DOMAIN`, appropriately.
+```bash
+NGROK_AUTH=XXXXXXXXXXXXXXX
+NGROK_DOMAIN=XXXXXXXXXXXXXXX
+``` 
+
+4. In the `main.py` script, modify the `ESP32` constant appropriately to the local IP address of the ESP32 board.
 
 ### Android-Side Installation
 
@@ -111,25 +127,21 @@ pip install -r requirements.txt
 
 2. ...
 
-3. Do not build and install the app to the Galaxy Watch just yet.
+3. ...
 
 ### How to Run
 
-We require a public forwarding URL so that the Galaxy Watch can send data to our Flask endpoints. Generating a public forwarding URL with `ngrok` will conveniently be automated in our `main.py` script.
-
-Run `python main.py` and copy the forwarding URL outputted.
-
-Modify the forwarding URL in `MainActivity.java` and proceed to building and installing the app to the Galaxy Watch.
+Run `python main.py`.
 
 Monitor the watch and nanoleaf for color changes! If you do not have a Galaxy Watch, you can simulate sending biometric data to the server using the `server/test/spoof_data.py` script.
 
 > [!Warning]  
-> Ensure that the Raspberry Pi and ESP32/Nano Leaf are on the same WiFi network before starting a ngrok session using `main.py`. If you are using the free trial of `ngrok`, you must modify the forwarding URL whenever you re-run the Flask server 
+> Ensure that the Raspberry Pi and ESP32/Nano Leaf are on the same WiFi network before starting a ngrok session using `main.py`.
 
 <!------------------------------------------ Network Architecture  ---------------------------------------------------------->
 ## Network Architecture
 
-![network](server/software_network.png)
+![network](server/img/software_network.png)
 
 <!------------------------------------------ File Architecture  ---------------------------------------------------------->
 ## File Architecture
