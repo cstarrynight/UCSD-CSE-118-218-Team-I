@@ -136,7 +136,7 @@ def form():
     return jsonify({'status': 'bad input'}), 400
 
 def run(port):
-    app.run(debug=True, port=port)
+    app.run(port=port)
     
 if __name__ == '__main__':
-    run()
+    run(8080)

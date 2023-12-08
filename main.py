@@ -7,11 +7,21 @@ ESP32 = '192.168.0.246'
 
 if __name__ == '__main__':
     # Establish connectivity
-    local_listener = ngrok.forward(addr=LOCAL, authtoken_from_env=True)
+    listener = ngrok.forward(domain='gnu-pleased-seriously.ngrok-free.app', addr=LOCAL, authtoken='2WPebJnja7EON792v2sEh5dixck_5bqbGZ16igmNq5oMp6Rau')
+    listener_url = listener.url()
 
     # Output ngrok url to console
-    print(f'Local forwarding URL established at {local_listener.url()}')
+    print(' __________________________________________________________________________________________')
+    print('|')
+    print(f'|  Local forwarding URL established at {listener_url}')
+    print('|')
+    print(' __________________________________________________________________________________________')
+    print('')
 
-    run(port=LOCAL)
+    try:
+        run(port=LOCAL)
+    except KeyboardInterrupt:
+        ngrok.disconnect()
 
-    #ngrok.disconnect()
+    #ngrok config edit
+    #ngrok config check
