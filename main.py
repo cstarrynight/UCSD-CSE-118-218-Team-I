@@ -1,17 +1,34 @@
 # Import flask application and ngrok python sdk
 from server.app import run
-import ngrok
+from dotenv import load_dotenv
+import ngrok, os
+
+load_dotenv()
+
+NGROK_AUTH = os.environ.get('NGROK_AUTH')
+NGROK_DOMAIN = os.environ.get('NGROK_DOMAIN')
 
 LOCAL = 8080
-ESP32 = '192.168.0.246'
+ESP32 = 'http://192.168.0.246'
 
 if __name__ == '__main__':
     # Establish connectivity
-    local_listener = ngrok.forward(addr=LOCAL, authtoken_from_env=True)
+    listener = ngrok.forward(domain=NGROK_DOMAIN, addr=LOCAL, authtoken=NGROK_AUTH)
+    listener_url = listener.url()
 
     # Output ngrok url to console
-    print(f'Local forwarding URL established at {local_listener.url()}')
+    print(' ------------------------------------------------------------------------------------')
+    print('|                                                                                    |')
+    print(f'|  Local forwarding URL established at {listener_url}  |')
+    print('|                                                                                    |')
+    print(' ------------------------------------------------------------------------------------')
+    print('')
 
-    run(port=LOCAL)
+    try:
+        run(port=LOCAL, esp32_url=ESP32)
 
-    #ngrok.disconnect()
+    except KeyboardInterrupt:
+        ngrok.disconnect()
+
+    #ngrok config edit
+    #ngrok config check

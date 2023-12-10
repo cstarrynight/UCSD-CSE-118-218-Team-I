@@ -6,7 +6,7 @@ import numpy as np
 app = Flask(__name__)
 
 # Smart device forwarding URL
-ESP32_URL = 'http://192.168.0.246'
+ESP32_URL = ''
 
 # User Mode 0: Non-Athlete, User Mode 1: Elite Athlete 
 USER_MODE = 0 
@@ -135,8 +135,11 @@ def form():
 
     return jsonify({'status': 'bad input'}), 400
 
-def run(port):
-    app.run(debug=True, port=port)
+def run(port, esp32_url):
+    global ESP32_URL
+
+    ESP32_URL = esp32_url
+    app.run(port=port)
     
 if __name__ == '__main__':
-    run()
+    run(8080)
