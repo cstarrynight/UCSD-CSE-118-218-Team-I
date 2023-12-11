@@ -49,7 +49,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 
     private float bpm;//heart rate value
 
-    private static final String inputUrl = "https://d64d-137-110-116-189.ngrok.io/";//"[Developer TODO: Insert Ngrok Link]";
+    private static final String inputUrl = "https://gnu-pleased-seriously.ngrok-free.app";//"[Developer TODO: Insert Ngrok Link]";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
