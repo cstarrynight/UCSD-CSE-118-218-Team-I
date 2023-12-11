@@ -65,7 +65,7 @@ Make sure you have the latest version of `Python 3.11.*` on your Raspberry Pi.
 
 For our wearable app, development and installation was done on [Android Studio](https://developer.android.com/studio) on a personal machine.
 
-An optional portion of this project was designing and fabricating a smart light appliance. We prototyped a nano leaf, and the design files and BOM will be listed [here](smart_devices/README.md). The nano leaf is an IoT device, which requires embedded firmware for the ESP32 housed inside. Therefore, we recommend using [Visual Studio Code](https://code.visualstudio.com/) with the [PlatformIO](https://platformio.org/) extension for development.
+An optional portion of this project was designing and fabricating a smart light appliance. We prototyped a nano leaf, and the design files and BOM will be listed [here](esp32_nanoleaf/README.md). The nano leaf is an IoT device, which requires embedded firmware for the ESP32 housed inside. Therefore, we recommend using [Visual Studio Code](https://code.visualstudio.com/) with the [PlatformIO](https://platformio.org/) extension for development.
 
 Lastly, this project is persistently communicating with different devices, among the watch, server, and smart appliance. Our main method of communication is with REST APIs via HTTP requests. To make our device/server network endpoints public yet secure for communication, we require a tool [nrgok](https://ngrok.com/) on the Raspberry Pi. Feel free to use the free trial!
 
@@ -121,13 +121,34 @@ NGROK_DOMAIN=XXXXXXXXXXXXXXX
 
 4. In the `main.py` script, modify the `ESP32` constant appropriately to the local IP address of the ESP32 board.
 
-### Android-Side Installation
+### Android-App Installation
+#### Samsung Galaxy Watch Setup
+1. Enable Developer Options on Galaxy Watch
+    - Open Settings > About Watch > Software Information > Tap (at least 5 times) "Software Version" until the watch says "Developer mode turned on" 
 
-1. ...
+2. Enable WiFi debugging on Galaxy Watch
+  - Open Developer Options > Enable "ADB Debugging"
+  - Enable "Wireless debugging"
+  - Click "Pair new device"
+  - Note IP Address and port & Pairing Code of watch
+  - Keep the watch on this screen as you proceed to the next step
 
-2. ...
+  #### Computer Side Setup
+  ##### Option 1: Using Android Studio SDK
+  1. Open the "CSE118_FinalProject" folder in Android Studio
+  2. Top right corner, click the dropdown menu next to the play button
+  3. In the dropdown menu, select "Pair Devices using WiFi"
+  4. Go to tab that says "Pair using pairing code"
+  5. Enter WiFi pairing code from step 2 of Galaxy Watch setup
+  ##### Option 2: Using ADB CLI
+  1. Download the Android SDK Platform Tools from [here](https://developer.android.com/studio/releases/platform-tools)
+  2. Copy the apk file of the app (app_install/apk-debug) into the platform-tools folder from Option2: step 1
+  3. open the platforms-tools folder in the terminal and run the following commands:
+      - `./adb pair <IP Address of Galaxy Watch>:<Port Number>`
+      - Enter WiFi pairing code from step 2 of Galaxy Watch setup
+      - `./adb install apk-debug.apk`
 
-3. ...
+
 
 ### How to Run
 

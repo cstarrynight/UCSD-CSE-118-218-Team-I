@@ -1,7 +1,5 @@
 package com.example.cse118_finalproject;
 
-import static java.lang.Boolean.TRUE;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
@@ -13,9 +11,13 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.example.cse118_finalproject.databinding.ActivityMainBinding;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import okhttp3.Response;
 public class MainActivity extends Activity implements SensorEventListener{
 
     private TextView tv_heartRate;
+    private Switch athleteButton;
 
     private ActivityMainBinding binding;
     private static final String TAG = "____Main___";
@@ -44,17 +47,20 @@ public class MainActivity extends Activity implements SensorEventListener{
     private SensorManager mSensorManager;
     private Sensor mHeartRate;
 
-    private float bpm;
-    private static final String inputUrl = "[Developer TODO: Insert Ngrok Link]";
+    private float bpm;//heart rate value
+
+    private static final String inputUrl = "https://gnu-pleased-seriously.ngrok-free.app";//"[Developer TODO: Insert Ngrok Link]";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater()); // binder for framelayout
         setContentView(binding.getRoot());
 
         tv_heartRate = binding.textHEARTRATE;
+        athleteButton = binding.switch1;
 
         mSensorManager = ((SensorManager) getSystemService(SENSOR_SERVICE));
         mHeartRate = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
@@ -69,10 +75,16 @@ public class MainActivity extends Activity implements SensorEventListener{
 
         // Runtime permission ------------
         if (checkSelfPermission(Manifest.permission.BODY_SENSORS) // check runtime permission for BODY_SENSORS
+                != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            requestPermissions(
-                    new String[]{Manifest.permission.BODY_SENSORS}, 1); // If BODY_SENSORS permission has not been taken before then ask for the permission with popup
+            requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 1); // If BODY_SENSORS permission has not been taken before then ask for the permission with popup
+            requestPermissions(new String[]{Manifest.permission.INTERNET}, 1);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_NETWORK_STATE}, 1);
+
         } else {
             Log.d(TAG, "ALREADY GRANTED"); //if BODY_SENSORS is allowed for this app then print this line in log.
         }
@@ -110,7 +122,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     }
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if(TRUE){//event.accuracy >= mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+        if(event.accuracy >= mSensorManager.SENSOR_STATUS_ACCURACY_MEDIUM){
             Log.d(TAG, "onSensorChanged");
             //bpm = event.TYPE_HEART_RATE;
             bpm = event.values[0];
@@ -126,7 +138,7 @@ public class MainActivity extends Activity implements SensorEventListener{
                     .subscribe(
                             result -> {
                                 // Handle the result on the main thread
-                                //Log.d(TAG,"Result: " + result);
+                                Log.d(TAG,"Result: ");// + result);
                             },
                             error -> {
                                 // Handle errors on the main thread
@@ -144,10 +156,10 @@ public class MainActivity extends Activity implements SensorEventListener{
             try {
                 String result = post(url, jsonBody);
                 emitter.onSuccess(result);
-                Log.d(TAG, "postedRX");
+                Log.d(TAG, "postedRX: "+result);
             } catch (Exception e) {
                 emitter.onError(e);
-                Log.d(TAG, "postedRX fail");
+                Log.d(TAG, "postedRX fail: " + e.toString());
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -157,9 +169,23 @@ public class MainActivity extends Activity implements SensorEventListener{
         StrictMode.setThreadPolicy(policy);
 
         MediaType JSON = MediaType.parse("application/json");
+        JSONObject jsonObject = new JSONObject();
+        try {
+            if(athleteButton.isChecked()) {
+                jsonObject.put("isAthlete",String.valueOf(1));
+            }
+            else{
+                jsonObject.put("isAthlete",String.valueOf(0));
+            }
+            jsonObject.put("BPM",String.valueOf(bpm));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         OkHttpClient client = new OkHttpClient();
 
-        RequestBody body = RequestBody.create(json, JSON);
+        RequestBody body = RequestBody.create(JSON,jsonObject.toString());
+
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
